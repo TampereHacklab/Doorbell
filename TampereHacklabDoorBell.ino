@@ -20,6 +20,7 @@ const int HighBellPin = 4;
 const int HBrEnable = 6;
 const int HammerTime = 50;      //How long hammer solennoid is powered
 const int PullBackTime = 5;     //Time to pull hammer away from bell
+int counter = 0;
 
 void setup() {
   //Set pin direction
@@ -36,34 +37,39 @@ void setup() {
 
 void loop() {
   if (digitalRead(ButtonPin) == LOW) {
-    digitalWrite(HBrEnable, HIGH);
-    PlayBellSingle();
-    delay(1000);
-    PlayBellSingle();
-    delay(2000);
-  }
-  
-  while (digitalRead(ButtonPin) == HIGH) {
-    digitalWrite(HBrEnable, LOW);
-  }
+    if (counter >= 1){ //If button is held down bell will ring faster
+      DoorBellRing();
+      }
+    
+    else {             //If button is quiqly pressed it will just ring once
+      counter = counter+1;
+      PlayBellSingle();
+      delay(500);
+      }
+    
+  if (digitalRead(ButtonPin) == HIGH){
+    counter = 0;
+    }
+  } 
  }
 
-void PlayBellSingle(){   //doorbell music goes here!
+void PlayBellSingle(){   //Doorbell single ring
   RingHighBell();
   delay(500);
   RingLowBell();
  }
 
-/* This is just for dull ringing, like old phone
-void DoorBellRing(){
+
+void DoorBellRing(){  // This is just for dull ringing, like old phone
   RingHighBell();
   delay(25);
   RingLowBell();
   delay(25);
 }
-*/
+
 
 void RingHighBell(){ //pull hammer to high tone bell
+  digitalWrite(HBrEnable, HIGH);
   digitalWrite(HighBellPin, HIGH); //Strike
   delay(HammerTime);
   digitalWrite(HighBellPin, LOW);
@@ -71,9 +77,11 @@ void RingHighBell(){ //pull hammer to high tone bell
   digitalWrite(LowBellPin, HIGH);  //PullBack
   delay(PullBackTime);
   digitalWrite(LowBellPin, LOW);
+  digitalWrite(HBrEnable, LOW);
  }
 
 void RingLowBell(){ //pull hammer to low tone bell
+  digitalWrite(HBrEnable, HIGH);
   digitalWrite(LowBellPin, HIGH); //Strike
   delay(HammerTime);
   digitalWrite(LowBellPin, LOW);
@@ -81,6 +89,7 @@ void RingLowBell(){ //pull hammer to low tone bell
   digitalWrite(HighBellPin, HIGH); //PullBack
   delay(PullBackTime);
   digitalWrite(HighBellPin, LOW);
+  digitalWrite(HBrEnable, LOW);
  }
 
   /* 
